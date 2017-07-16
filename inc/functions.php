@@ -127,7 +127,7 @@ function nameBlock($name, $tripcode, $email, $timestamp, $rawposttext) {
 }
 
 function writePage($filename, $contents) {
-	$tempfile = tempnam('res/', TINYIB_BOARD . 'tmp'); /* Create the temporary file */
+	$tempfile = tempnam('thread/', TINYIB_BOARD . 'tmp'); /* Create the temporary file */
 	$fp = fopen($tempfile, 'w');
 	fwrite($fp, $contents);
 	fclose($fp);
@@ -141,8 +141,10 @@ function writePage($filename, $contents) {
 }
 
 function fixLinksInRes($html) {
-	$search = array(' href="css/', ' href="src/', ' href="thumb/', ' href="res/', ' href="imgboard.php', ' href="favicon.ico', 'src="thumb/', ' action="imgboard.php');
-	$replace = array(' href="../css/', ' href="../src/', ' href="../thumb/', ' href="../res/', ' href="../imgboard.php', ' href="../favicon.ico', 'src="../thumb/', ' action="../imgboard.php');
+	$search =  array(' href="src/',    ' href="thumb/',    ' href="thread/',    ' href="imgboard.php',    ' href="favicon.ico',
+	'src="thumb/',    ' action="imgboard.php',    ' href="catalog"');
+	$replace = array(' href="../src/', ' href="../thumb/', ' href="../thread/', ' href="../imgboard.php', ' href="../favicon.ico',
+	'src="../thumb/', ' action="../imgboard.php', ' href="../catalog"');
 	
 	return str_replace($search, $replace, $html);
 }
@@ -150,13 +152,37 @@ function fixLinksInRes($html) {
 function _postLink($matches) {
 	$post = postByID($matches[1]);
 	if ($post) {
-		return '<a href="res/' . ($post['parent'] == TINYIB_NEWTHREAD ? $post['id'] : $post['parent']) . '.html#' . $matches[1] . '">' . $matches[0] . '</a>';
+		return '<a href="thread/' . ($post['parent'] == TINYIB_NEWTHREAD ? $post['id'] : $post['parent']) . '#' . $matches[1] . '">' . $matches[0] . '</a>';
 	}
 	return $matches[0];
 }
 
 function postLink($message) {
 	return preg_replace_callback('/&gt;&gt;([0-9]+)/', '_postLink', $message);
+}
+
+function _cbPostLink($matches) {
+	if($matches[1]=='s4s'){
+		return '<a href="https://sys.4chan.org/s4s/imgboard.php?res='.$matches[2].'">' . $matches[0] . '</a>';
+	}else{
+		return '<a href="/'.$matches[1].'/thread/' . $matches[2] . '">' . $matches[0] . '</a>';
+	}
+}
+
+function cbPostLink($message) {
+	return preg_replace_callback('/&gt;&gt;&gt;\/(s|froge|s4s)\/([0-9]+)/', '_cbPostLink', $message);
+}
+
+function _cbLink($matches) {
+	if($matches[1]=='s4s'){
+		return '<a href="http://boards.4chan.org/s4s/">' . $matches[0] . '</a>';
+	}else{
+		return '<a href="/'.$matches[1].'/">' . $matches[0] . '</a>';
+	}
+}
+
+function cbLink($message) {
+	return preg_replace_callback('/&gt;&gt;&gt;\/(s|froge|s4s)\/(?![0-9])/', '_cbLink', $message);
 }
 
 function colorQuote($message) {
@@ -175,7 +201,7 @@ function checkBanned() {
 		if ($ban['expire'] == 0 || $ban['expire'] > time()) {
 			$expire = ($ban['expire'] > 0) ? ('<br>This ban will expire ' . date('y/m/d(D)H:i:s', $ban['expire'])) : '<br>This ban is permanent and will not expire.';
 			$reason = ($ban['reason'] == '') ? '' : ('<br>Reason: ' . $ban['reason']);
-			fancyDie('Your IP address ' . $ban['ip'] . ' has been banned from posting on this image board.  ' . $expire . $reason);
+			fancyDie("Look who it is again, " . $ban['ip'] . ". I'm fed up with your poop, fig. The other day when you called me a fig newton, yeah, haven't forgotten about that yet<br>Fug you, I've been on here for months and probably get on here more than you anyways. Don't you know that you make yourself look like a newfig when you call others newfigs?<br>Just because you learned how to hack your name and change it to \"Heaven\" does not give you the right to disrespect anyone at any time<br>" . $expire . $reason . "<br><br>You can appeal your ban on [s4s], not that it will guarantee your unban");
 		} else {
 			clearExpiredBans();
 		}
@@ -187,21 +213,21 @@ function checkFlood() {
 		$lastpost = lastPostByIP();
 		if ($lastpost) {
 			if ((time() - $lastpost['timestamp']) < TINYIB_DELAY) {
-				fancyDie("Please wait a moment before posting again.  You will be able to make another post in " . (TINYIB_DELAY - (time() - $lastpost['timestamp'])) . " " . plural("second", (TINYIB_DELAY - (time() - $lastpost['timestamp']))) . ".");
+				fancyDie("Please wait a moment before posting again. You will be able to make another post in " . (TINYIB_DELAY - (time() - $lastpost['timestamp'])) . " " . plural("second", (TINYIB_DELAY - (time() - $lastpost['timestamp']))));
 			}
 		}
 	}
 }
 
 function checkMessageSize() {
-	if (strlen($_POST["message"]) > 8000) {
-		fancyDie("Please shorten your message, or post it in multiple parts. Your message is " . strlen($_POST["message"]) . " characters long, and the maximum allowed is 8000.");
+	if (strlen($_POST["message"]) > 3000) {
+		fancyDie("Please shorten your message, or post it in multiple parts. Your message is " . strlen($_POST["message"]) . " characters long, and the maximum allowed is 3000");
 	}
 }
 
 function manageCheckLogIn() {
 	$loggedin = false; $isadmin = false;
-	if (isset($_POST['password'])) {
+	/*if (isset($_POST['password'])) {
 		if ($_POST['password'] == TINYIB_ADMINPASS) {
 			$_SESSION['tinyib'] = TINYIB_ADMINPASS;
 		} elseif (TINYIB_MODPASS != '' && $_POST['password'] == TINYIB_MODPASS) {
@@ -216,6 +242,10 @@ function manageCheckLogIn() {
 		} elseif (TINYIB_MODPASS != '' && $_SESSION['tinyib'] == TINYIB_MODPASS) {
 			$loggedin = true;
 		}
+	}*/
+	if(hash('ripemd160',getenv('REMOTE_ADDR'))==TINYIB_MODPASS){
+		$loggedin=true;
+		$isadmin=true;
 	}
 	
 	return array($loggedin, $isadmin);
@@ -225,7 +255,7 @@ function setParent() {
 	if (isset($_POST["parent"])) {
 		if ($_POST["parent"] != TINYIB_NEWTHREAD) {
 			if (!threadExistsByID($_POST['parent'])) {
-				fancyDie("Invalid parent thread ID supplied, unable to create post.");
+				fancyDie("Invalid parent thread ID supplied, unable to create post");
 			}
 			
 			return $_POST["parent"];
@@ -251,25 +281,25 @@ function validateFileUpload() {
 		case UPLOAD_ERR_OK:
 			break;
 		case UPLOAD_ERR_FORM_SIZE:
-			fancyDie("That file is larger than " . TINYIB_MAXKBDESC . ".");
+			fancyDie("That file is larger than " . TINYIB_MAXKBDESC);
 			break;
 		case UPLOAD_ERR_INI_SIZE:
-			fancyDie("The uploaded file exceeds the upload_max_filesize directive (" . ini_get('upload_max_filesize') . ") in php.ini.");
+			fancyDie("The uploaded file exceeds the upload_max_filesize directive (" . ini_get('upload_max_filesize') . ") in php.ini");
 			break;
 		case UPLOAD_ERR_PARTIAL:
-			fancyDie("The uploaded file was only partially uploaded.");
+			fancyDie("The uploaded file was only partially uploaded");
 			break;
 		case UPLOAD_ERR_NO_FILE:
-			fancyDie("No file was uploaded.");
+			fancyDie("No file was uploaded");
 			break;
 		case UPLOAD_ERR_NO_TMP_DIR:
-			fancyDie("Missing a temporary folder.");
+			fancyDie("Missing a temporary folder");
 			break;
 		case UPLOAD_ERR_CANT_WRITE:
 			fancyDie("Failed to write file to disk");
 			break;
 		default:
-			fancyDie("Unable to save the uploaded file.");
+			fancyDie("Unable to save the uploaded file");
 	}
 }
 
@@ -277,7 +307,7 @@ function checkDuplicateImage($hex) {
 	$hexmatches = postsByHex($hex);
 	if (count($hexmatches) > 0) {
 		foreach ($hexmatches as $hexmatch) {
-			fancyDie("Duplicate file uploaded. That file has already been posted <a href=\"res/" . (($hexmatch["parent"] == TINYIB_NEWTHREAD) ? $hexmatch["id"] : $hexmatch["parent"]) . ".html#" . $hexmatch["id"] . "\">here</a>.");
+			fancyDie("That file has already been posted <a href=\"thread/" . (($hexmatch["parent"] == TINYIB_NEWTHREAD) ? $hexmatch["id"] : $hexmatch["parent"]) . "#" . $hexmatch["id"] . "\">here</a>");
 		}
 	}
 }
@@ -296,24 +326,34 @@ function thumbnailDimensions($post) {
 function createThumbnail($name, $filename, $new_w, $new_h) {
 	$system = explode(".", $filename);
 	$system = array_reverse($system);
-	if (preg_match("/jpg|jpeg/", $system[0])) {
-		$src_img = imagecreatefromjpeg($name);
-	} else if (preg_match("/png/", $system[0])) {
-		$src_img = imagecreatefrompng($name);
-	} else if (preg_match("/gif/", $system[0])) {
-		$src_img = imagecreatefromgif($name);
-	} else {
-		return false;
+	
+	$src_img = @imagecreatefrompng($name);
+	if(!$src_img){
+		$src_img = @imagecreatefromgif($name);
+		if(!$src_img){
+			$src_img = @imagecreatefromjpeg($name);
+			if(!$src_img){
+				return false;
+			}
+		}
 	}
 	
-	if (!$src_img) {
-		fancyDie("Unable to read uploaded file during thumbnailing. A common cause for this is an incorrect extension when the file is actually of a different type.");
-	}
 	$old_x = imageSX($src_img);
 	$old_y = imageSY($src_img);
+	if($old_x>2500||$old_y>2500){
+		imagedestroy($src_img);
+		fancyDie("Maximum allowed resolution: 2500x2500",$name);
+		return false;
+	}
 	$percent = ($old_x > $old_y) ? ($new_w / $old_x) : ($new_h / $old_y);
 	$thumb_w = round($old_x * $percent);
 	$thumb_h = round($old_y * $percent);
+	if($thumb_w<1){
+		$thumb_w=1;
+	}
+	if($thumb_h<1){
+		$thumb_h=1;
+	}
 	
 	$dst_img = ImageCreateTrueColor($thumb_w, $thumb_h);
 	fastImageCopyResampled($dst_img, $src_img, 0, 0, 0, 0, $thumb_w, $thumb_h, $old_x, $old_y);
@@ -322,7 +362,7 @@ function createThumbnail($name, $filename, $new_w, $new_h) {
 		if (!imagepng($dst_img, $filename)) {
 			return false;
 		}
-	} else if (preg_match("/jpg|jpeg/", $system[0])) {
+	} else if (preg_match("/jpe?g/", $system[0])) {
 		if (!imagejpeg($dst_img, $filename, 70)) {
 			return false;
 		}
@@ -332,8 +372,8 @@ function createThumbnail($name, $filename, $new_w, $new_h) {
 		}
 	}
 	
-	imagedestroy($dst_img); 
-	imagedestroy($src_img); 
+	imagedestroy($dst_img);
+	imagedestroy($src_img);
 	
 	return true;
 }

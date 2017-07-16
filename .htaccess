@@ -1,4 +1,4 @@
-DirectoryIndex index.html
+DirectoryIndex index.html index.htm index.php 1
 Options -Indexes
 AddCharset UTF-8 .html
 AddCharset UTF-8 .php
