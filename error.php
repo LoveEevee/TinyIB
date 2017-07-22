@@ -1,11 +1,15 @@
-<?
+<?php
 require 'settings.php';
-include 'inc/functions.php';
+$includes = array("inc/functions.php");
 if (in_array(TINYIB_DBMODE, array('flatfile', 'mysql', 'sqlite'))) {
 	$includes[] = 'inc/database_' . TINYIB_DBMODE . '.php';
 } else {
 	die("Unknown database mode specified");
 }
+foreach ($includes as $include) {
+	include $include;
+}
+
 $matches=preg_replace("/\\.html$/","",pathinfo($_SERVER["REQUEST_URI"],PATHINFO_BASENAME));
 $boardletter=TINYIB_BOARD;
 if(ctype_digit($matches)){

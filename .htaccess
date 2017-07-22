@@ -3,14 +3,6 @@ Options -Indexes
 AddCharset UTF-8 .html
 AddCharset UTF-8 .php
 
-<Files *>
-ForceType application/x-httpd-php
-</Files>
-
-<Files *\.*>
-ForceType None
-</Files>
-
 <IfModule mod_headers.c>
 Header unset ETag
 <Files *.html>
