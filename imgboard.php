@@ -58,7 +58,7 @@ $includes = array("inc/defines.php", "inc/functions.php", "inc/html.php");
 if (in_array(TINYIB_DBMODE, array('flatfile', 'mysql', 'sqlite'))) {
 	$includes[] = 'inc/database_' . TINYIB_DBMODE . '.php';
 } else {
-	fancyDie("Unknown database mode specificed");
+	fancyDie("Unknown database mode specified");
 }
 
 foreach ($includes as $include) {

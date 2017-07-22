@@ -11,8 +11,10 @@ body{
 	font-family:sans-serif;
 	color:#800000;
 }
-body#froge,body#froge .postarea textarea,body#froge input{
-	font-family:HeyGorgeous,Comic Sans MS,sans-serif!important;
+body#froge,
+body#froge .postarea textarea,
+body#froge input{
+	font-family:HeyGorgeous, Comic Sans MS, sans-serif!important;
 }
 form{
 	margin-bottom:0;
@@ -65,7 +67,8 @@ form{
 a{
 	color:#000080;
 }
-.filesize a,.postInfo a{
+.filesize a,
+.postInfo a{
 	color:#000;
 }
 a:hover{
@@ -114,11 +117,13 @@ a:hover{
 	border-left:none;
 	border-top:none;
 }
-.postInfo,.filesize{
+.postInfo,
+.filesize{
 	font-size:14px;
 	color:#999;
 }
-.postarea,.thread{
+.postarea,
+.thread{
 	padding:5px;
 }
 .postarea textarea{
@@ -129,11 +134,12 @@ a:hover{
 .postarea input[name='name']{
 	width:240px;
 }
-.postarea input,.postarea textarea{
+.postarea input,
+.postarea textarea{
 	font-size:14px;
 }
 #delform{
-	margin:5px 20px
+	margin:5px 20px;
 }
 .thread{
 	clear:both;
@@ -148,7 +154,7 @@ a:hover{
 	left:0;
 	width:100%;
 	height:100%;
-	background:rgba(0,0,0,.5);
+	background:rgba(0, 0, 0, .5);
 	cursor:pointer;
 }
 #imgexpand img{
@@ -162,23 +168,35 @@ a:hover{
 	max-height:100%;
 	margin:auto;
 }
-.fortune,.banmessage{
+.fortune,
+.banmessage{
 	margin-top:1em;
 	font-weight:bold;
 }
-.postername+[style='color: red;']{
+.afroge{
 	background:url(/chan/adminicon.png) no-repeat right;
 	padding-right:20px;
+	color:#21cc12;
 }
 .backlink{
 	color:#000080!important;
 	font-size:12px;
 	padding-left:.5em;
 }
-.reflink [href$='00']+a,.reflink [href$='11']+a,.reflink [href$='22']+a,.reflink [href$='33']+a,.reflink [href$='44']+a,.reflink [href$='55']+a,.reflink [href$='66']+a,.reflink [href$='77']+a,.reflink [href$='88']+a,.reflink [href$='99']+a{
+.reflink [href$='00']+a,
+.reflink [href$='11']+a,
+.reflink [href$='22']+a,
+.reflink [href$='33']+a,
+.reflink [href$='44']+a,
+.reflink [href$='55']+a,
+.reflink [href$='66']+a,
+.reflink [href$='77']+a,
+.reflink [href$='88']+a,
+.reflink [href$='99']+a{
 	background:#ffa500;
 }
-.reply:target,.reply.hovered{
+.reply:target,
+.reply.hovered{
 	background:#f0c0b0;
 	border-color:#d99f91;
 }
@@ -195,7 +213,42 @@ a:hover{
 .thread.hovered>.message{
 	background:#f0c0b0;
 }
-.hovered .backbacklink,.hoveredpost .backbacklink{
+.hovered .backbacklink,
+.hoveredpost .backbacklink{
 	text-decoration:none;
 	border-bottom:1px dashed #000080;
+}
+.cataloglink{
+	font-size:16px;
+}
+#catalog{
+	padding:20px 0px;
+	text-align:center;
+}
+#catalog .thread{
+	border-top:0;
+	display:inline-block;
+	width:165px;
+	max-height:320px;
+	vertical-align:top;
+	margin:10px 0 3px 0;
+	word-wrap:break-word;
+	overflow:hidden;
+}
+#catalog a{
+	color:#800000!important;
+	text-decoration:none;
+}
+#catalog img{
+	box-shadow:0 0 5px rgba(0, 0, 0, .25);
+	float:none;
+	margin:0;
+}
+.meta{
+	font-size:10px;
+	line-height:8px;
+	margin-top:1px;
+}
+.teaser{
+	font-size:13px;
 }

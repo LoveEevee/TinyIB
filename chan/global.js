@@ -46,8 +46,8 @@ setInterval(updatetimes,30000)
 
 var pstf=document.postform.message
 function quote(num){
-	var slct=getSelection()||(document.selection.type&&document.selection.createRange().text)||'';
-	var num=num?'>>'+num+'\n':'';
+	var slct=getSelection()||document.selection.type&&document.selection.createRange().text||''
+	var num=num?'>>'+num+'\n':''
 	if(slct+''){
 		num+=('>'+slct).trim().replace(/[\r\n]+/g,'\n>')+'\n'
 	}
@@ -95,15 +95,15 @@ function givebacklinks(){
 		if(quotes[i].tagName=='A'){
 			if(quotes[i].innerHTML.slice(0,8)=='&gt;&gt;'){
 				var num=quotes[i].innerHTML.slice(8)
-				quotes[i].setAttribute('pid',num)
-				quotes[i].addEventListener('mouseover',quotehover)
-				quotes[i].addEventListener('mouseout',function(event){
+				quotes[i].dataset.pid=num
+				quotes[i].onmouseover=quotehover
+				quotes[i].onmouseout=function(event){
 					quotehover(event,1)
-				})
+				}
 				if(num==lastop){
 					quotes[i].innerHTML+=' (OP)'
 				}else{
-					var cross=quotes[i].href.match(/(\d+).html#(\d+)/)
+					var cross=quotes[i].href.match(/(?:^|..\/)thread\/(\d+)#(\d+)$/)
 					if(cross&&cross[1]!=lastop){
 						if(cross[1]==cross[2]){
 							quotes[i].innerHTML+=' (OP)'
@@ -129,11 +129,11 @@ function makebacklink(num,text){
 			backlink.innerHTML='&gt;&gt;'+text
 			backlink.href='#'+text
 			backlink.classList.add('backlink')
-			backlink.setAttribute('pid',text)
-			backlink.addEventListener('mouseover',quotehover)
-			backlink.addEventListener('mouseout',function(event){
+			backlink.dataset.pid=text
+			backlink.onmouseover=quotehover
+			backlink.onmouseout=function(event){
 				quotehover(event,1)
-			})
+			}
 			var replylink=postinfo.getElementsByClassName('replylink')[0]
 			if(replylink){
 				postinfo.insertBefore(backlink,replylink)
@@ -146,7 +146,7 @@ function makebacklink(num,text){
 
 var hoveredpost=null
 function quotehover(event,hoverout){
-	var num=event.target.getAttribute('pid')
+	var num=event.target.dataset.pid
 	var target=document.getElementById(num)
 	if(target){
 		if(hoverout){
@@ -161,7 +161,7 @@ function quotehover(event,hoverout){
 			}
 		}else{
 			var frompost=event.target.parentNode.parentNode.id
-			var backbacklinks=target.querySelectorAll(':scope>.message [pid="'+frompost+'"]')
+			var backbacklinks=target.querySelectorAll(':scope>.message [data-pid="'+frompost+'"]')
 			for(var i=0;i<backbacklinks.length;i++){
 				backbacklinks[i].classList.add('backbacklink')
 			}
@@ -190,4 +190,20 @@ function quotehover(event,hoverout){
 			}
 		}
 	}
+}
+var password=''
+document.cookie.split(';').some(function(a){
+	var b=a.split('=')
+	if(b[0]=='password'){
+		password=b[1]
+		return 1
+	}
+})
+if(!password||!(password*0+1)){
+	password=Math.floor(Math.random()*1E16)
+	document.cookie='password='+password+';expires='+(new Date(Date.now()+3E10)).toUTCString()+';path=/'
+}
+var passes=document.getElementsByName('password')
+for(var i=0;i<passes.length;i++){
+	passes[i].setAttribute('value',password)
 }
